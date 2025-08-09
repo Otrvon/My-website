@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="ar" >
+<head>
+  <meta charset="UTF-8" />
+  <title>موقع تفاعلي متحرك</title>
+  <style>
+    /* reset */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body, html {
+      height: 100%;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      direction: rtl;
+      overflow: hidden;
+      background: #0d1b2a;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    /* خلفية الجسيمات */
+    #particles {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      z-index: -1;
+      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+    }
+    /* نص ترحيبي */
+    #welcome {
+      font-size: 3rem;
+      border-right: 3px solid #fff;
+      white-space: nowrap;
+      overflow: hidden;
+      width: 24ch; /* تحدد عرض النص */
+      animation: typing 4s steps(24), blink 0.75s step-end infinite;
+      margin-bottom: 30px;
+      user-select: none;
+    }
+    @keyframes typing {
+      from { width: 0 }
+      to { width: 24ch }
+    }
+    @keyframes blink {
+      50% { border-color: transparent }
+    }
+    /* زر تغيير الثيم */
+    #themeBtn {
+      background: #1b263b;
+      color: #fff;
+      border: none;
+      padding: 15px 30px;
+      border-radius: 12px;
+      font-size: 1.2rem;
+      cursor: pointer;
+      box-shadow: 0 4px 10px rgba(255,255,255,0.3);
+      transition: background 0.3s ease;
+      margin-bottom: 40px;
+    }
+    #themeBtn:hover {
+      background: #415a77;
+    }
+    /* عرض التاريخ والوقت */
+    #dateTime {
+      font-size: 1.5rem;
+      background: rgba(255,255,255,0.1);
+      padding: 12px 25px;
+      border-radius: 10px;
+      font-weight: 600;
+      letter-spacing: 1.5px;
+      user-select: none;
+    }
+    /* ثيمات الخلفية */
+    .theme1 {
+      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+    }
+    .theme2 {
+      background: linear-gradient(135deg, #4b6cb7, #182848);
+    }
+    .theme3 {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+    }
+    .theme4 {
+      background: linear-gradient(135deg, #ff758c, #ff7eb3);
+    }
+  </style>
+</head>
+<body class="theme1">
+
+  <canvas id="particles"></canvas>
+
+  <div id="welcome">عبدالله منذر عمك</div>
+
+  <button id="themeBtn">تغيير الثيم</button>
+
+  <div id="dateTime"></div>
+
+  <script>
+    // تأثير الجسيمات (نقاط تتحرك ببطء)
+    const canvas = document.getElementById('particles');
+    const ctx = canvas.getContext('2d');
+    let width, height;
+    let particlesArray;
+
+    function initCanvas() {
+      width = window.innerWidth;
+      height = window.innerHeight;
+      canvas.width = width;
+      canvas.height = height;
+    }
+
+    class Particle {
+      constructor() {
+        this.x = Math.random() * width;
+        this.y = Math.random() * height;
+        this.radius = Math.random() * 2 + 1;
+        this.speedX = (Math.random() - 0.5) * 0.5;
+        this.speedY = (Math.random() - 0.5) * 0.5;
+      }
+      update() {
+        this.x += this.speedX;
+        this.y += this.speedY;
+
+        if (this.x < 0 || this.x > width) this.speedX = -this.speedX;
+        if (this.y < 0 || this.y > height) this.speedY = -this.speedY;
+      }
+      draw() {
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+        ctx.fill();
+      }
+    }
+
+    function createParticles() {
+      particlesArray = [];
+      for (let i = 0; i < 80; i++) {
+        particlesArray.push(new Particle());
+      }
+    }
+
+    function animate() {
+      ctx.clearRect(0, 0, width, height);
+      particlesArray.forEach(p => {
+        p.update();
+        p.draw();
+      });
+      requestAnimationFrame(animate);
+    }
+
+    window.addEventListener('resize', () => {
+      initCanvas();
+      createParticles();
+    });
+
+    // بداية
+    initCanvas();
+    createParticles();
+    animate();
+
+    // تغيير الثيم
+    const themes = ['theme1', 'theme2', 'theme3', 'theme4'];
+    let currentTheme = 0;
+    const body = document.body;
+    const btn = document.getElementById('themeBtn');
+
+    btn.addEventListener('click', () => {
+      currentTheme = (currentTheme + 1) % themes.length;
+      body.className = themes[currentTheme];
+    });
+
+    // تحديث الوقت والتاريخ كل ثانية
+    const dateTimeEl = document.getElementById('dateTime');
+
+    function updateDateTime() {
+      const now = new Date();
+      const options = {
+        weekday: 'long', year: 'numeric', month: 'long',
+        day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit',
+        hour12: false,
+        timeZoneName: 'short'
+      };
+      const formatted = now.toLocaleDateString('ar-EG', options);
+      dateTimeEl.textContent = formatted;
+    }
+
+    updateDateTime();
+    setInterval(updateDateTime, 1000);
+  </script>
+
+</body>
+</html>
